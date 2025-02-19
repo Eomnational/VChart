@@ -86,11 +86,12 @@ export function symbolLabel(labelInfo: ILabelInfo) {
   const position = uniformLabelPosition(labelSpec.position) ?? defaultPosition;
 
   // encode overlap config
-  let overlap;
+  let overlap: OverlapAttrs | boolean;
   if (labelSpec.overlap === false) {
     overlap = false;
   } else {
     overlap = {
+      // clampForce: true,
       strategy: (labelSpec.overlap as OverlapAttrs)?.strategy ?? symbolLabelOverlapStrategy(),
       avoidBaseMark: position !== 'center'
     };
@@ -103,6 +104,7 @@ export function lineDataLabel(labelInfo: ILabelInfo) {
   const result = symbolLabel(labelInfo);
   if (!isBoolean(result.overlap)) {
     result.overlap.avoidBaseMark = false;
+    result.overlap.clampForce = false;
   }
   return result;
 }
@@ -211,6 +213,7 @@ export function pointLabel(labelInfo: ILabelInfo) {
     overlap = false;
   } else {
     overlap = {
+      clampForce: false,
       avoidBaseMark: false
     };
   }
@@ -363,7 +366,14 @@ export function LineLabel(labelInfo: ILabelInfo) {
           [DEFAULT_DATA_SERIES_FIELD]: series.getSeriesKeys()[0]
         }
       ];
-  return { position: labelSpec.position ?? 'end', data };
+  return {
+    position: labelSpec.position ?? 'end',
+    data,
+    overlap: {
+      avoidBaseMark: false,
+      clampForce: false
+    }
+  };
 }
 
 export function sankeyLabel(labelInfo: ILabelInfo) {
